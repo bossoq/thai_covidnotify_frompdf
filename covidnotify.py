@@ -12,8 +12,6 @@ import matplotlib.font_manager as fm
 from pandas.plotting import table
 
 today = datetime.now().date()
-#file_date = str(today.day) + "{:02d}".format(today.month) + str(today.year + 543)
-#file = 'https://ddc.moph.go.th/viralpneumonia/file/scoreboard/scoreboard_'+file_date+'.pdf'
 file_date = str(today.day) + "{:02d}".format(today.month) + str(today.year + 543 - 2500)
 file = 'https://media.thaigov.go.th/uploads/public_img/source/'+file_date+'.pdf'
 cwd = os.path.dirname(os.path.abspath(__file__))
