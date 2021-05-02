@@ -12,7 +12,9 @@ import matplotlib.font_manager as fm
 from pandas.plotting import table
 
 today = datetime.now().date()
-file_date = str(today.day) + "{:02d}".format(today.month) + str(today.year + 543 - 2500)
+#file_date = str(today.day) + "{:02d}".format(today.month) + str(today.year + 543)
+#file = 'https://ddc.moph.go.th/viralpneumonia/file/scoreboard/scoreboard_'+file_date+'.pdf'
+file_date = "{:02d}".format(today.day) + "{:02d}".format(today.month) + str(today.year + 543 - 2500)
 file = 'https://media.thaigov.go.th/uploads/public_img/source/'+file_date+'.pdf'
 cwd = os.path.dirname(os.path.abspath(__file__))
 
@@ -34,12 +36,17 @@ def check_pdf_page(file):
                 target = target + [page]
         except Exception:
             pass
-    read_page = str(target[0] + 1)+'-'+str(target[-1] + 1)
-    return read_page
+    read_page = str(target[0] + 1)
+    read_page1 = str(target[0] + 2)+'-'+str(target[0] + 5)
+    return read_page, read_page1
 
 def retrieve_data(file):
-    read_page = check_pdf_page(file)
-    table = tabula.read_pdf(cwd+'/tmp.pdf', pages=read_page, guess=False, columns=[44,172,272,323,380,434,488,542,596,650], area=[37,0,392,720])
+    oldcol = [44,172,272,323,380,434,488,542,596,650]
+    newcol = [40,150,240,298,356,414,471,530,594,658]
+    read_page, read_page1 = check_pdf_page(file)
+    table1 = tabula.read_pdf(cwd+'/tmp.pdf', pages=read_page, guess=False, columns=newcol, area=[37,0,392,720])
+    table2 = tabula.read_pdf(cwd+'/tmp.pdf', pages=read_page1, guess=False, columns=oldcol, area=[37,0,392,720])
+    table = table1 + table2
     now = today.day
     daterange = list(range(now - 6, now + 1))
     colname = ['Province', 'prev_data'] + daterange + ['Total']
@@ -112,7 +119,7 @@ while True:
     if requests.get(file).status_code != 404:
         data_full = retrieve_data(file)
         database = mergedb(data_full, database)
-        timestamp_txt = today.strftime('%d/%-m/%y')
+        timestamp_txt = today.strftime('%-d/%-m/%y')
         newcases = "{:,}".format(int(database[timestamp_txt].sum(axis=0)))
         accumulated = "{:,}".format(int(database['Total'].sum(axis=0)))
         bkk_newcases = "{:,}".format(int(database[database['Province'] == 'กรุงเทพมหานคร'][timestamp_txt]))
