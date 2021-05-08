@@ -12,8 +12,6 @@ import matplotlib.font_manager as fm
 from pandas.plotting import table
 
 today = datetime.now().date()
-#file_date = str(today.day) + "{:02d}".format(today.month) + str(today.year + 543)
-#file = 'https://ddc.moph.go.th/viralpneumonia/file/scoreboard/scoreboard_'+file_date+'.pdf'
 file_date = "{:02d}".format(today.day) + "{:02d}".format(today.month) + str(today.year + 543 - 2500)
 file = 'https://media.thaigov.go.th/uploads/public_img/source/'+file_date+'.pdf'
 cwd = os.path.dirname(os.path.abspath(__file__))
@@ -41,8 +39,8 @@ def check_pdf_page(file):
     return read_page, read_page1
 
 def retrieve_data(file):
-    oldcol = [44,172,272,323,380,434,488,542,596,650]
-    newcol = [40,150,240,298,356,414,471,530,594,658]
+    oldcol = [45,170,270,326,379,434,488,542,594,650]
+    newcol = [45,160,240,298,356,414,471,530,594,658]
     read_page, read_page1 = check_pdf_page(file)
     table1 = tabula.read_pdf(cwd+'/tmp.pdf', pages=read_page, guess=False, columns=newcol, area=[37,0,392,720])
     table2 = tabula.read_pdf(cwd+'/tmp.pdf', pages=read_page1, guess=False, columns=oldcol, area=[37,0,392,720])
