@@ -48,12 +48,13 @@ def retrieve_data(file):
     now = today.day
     daterange = list(range(now - 6, now + 1))
     colname = ['Province', 'prev_data'] + daterange + ['Total']
-    data = pd.DataFrame(columns=colname)
+    data_raw = pd.DataFrame(columns=colname)
     for df in table:
         df = df.drop(df.columns[0], axis=1)
         df.columns = colname
-        data = data.append(df)
-    data = data.reset_index(drop=True).dropna().iloc[1:]
+        data_raw = data_raw.append(df)
+    checksum = data_raw.reset_index(drop=True).dropna().iloc[:1,8].replace(',','', regex=True).replace('-', 0, regex=True).astype(int).sum()
+    data = data_raw.reset_index(drop=True).dropna().iloc[1:]
     data.iloc[:,1:] = data.iloc[:,1:].replace(',','', regex=True).replace('-', 0, regex=True).astype(int)
     prov_index = pd.read_csv(cwd+'/prov_index.csv')
     for name in list(prov_index.columns)[:-1]:
@@ -69,7 +70,7 @@ def retrieve_data(file):
     #data_full = data_full.rename(columns={'Province_1': 'Province'})
     data_full = data_full.drop(columns=['prev_data', 'Total'])
     data_full = data_full.fillna(0)
-    return data_full
+    return data_full, checksum
 
 def mergedb(data_full, database):
     if str(data_full.columns.to_list()[-1]) != database.columns.to_list()[-2].split('/')[0]:
@@ -104,29 +105,40 @@ def plt_table(top5_db):
             cell.set_text_props(fontproperties=fm.FontProperties(weight='bold'))
     plt.savefig(cwd+'/tmp.png')
 
-def func_LineNotify(Message, image_file, Token):
+def func_LineNotify(Message, image_file='no.file', Token):
     url = 'https://notify-api.line.me/api/notify'
-    file = ({'imageFile': open(cwd+'/'+image_file, 'rb')})
     data = ({'message': Message})
     LINE_HEADERS = {'Authorization': 'Bearer ' + Token}
     session = requests.Session()
-    response = session.post(url, headers=LINE_HEADERS, files=file, data=data)
+    if image_file != 'no.file':
+        file = ({'imageFile': open(cwd+'/'+image_file, 'rb')})
+        response = session.post(url, headers=LINE_HEADERS, files=file, data=data)
+    else:
+        response = session.post(url, headers=LINE_HEADERS, data=data)
     return response
 
 while True:
     if requests.get(file).status_code != 404:
-        data_full = retrieve_data(file)
-        database = mergedb(data_full, database)
-        timestamp_txt = today.strftime('%-d/%-m/%y')
-        newcases = "{:,}".format(int(database[timestamp_txt].sum(axis=0)))
-        accumulated = "{:,}".format(int(database['Total'].sum(axis=0)))
-        bkk_newcases = "{:,}".format(int(database[database['Province'] == 'กรุงเทพมหานคร'][timestamp_txt]))
-        bkk_accumulated = "{:,}".format(int(database[database['Province'] == 'กรุงเทพมหานคร']['Total']))
-        top5_db = top5create(database, timestamp_txt)
-        plt_table(top5_db)
-        break
+        data_full, checksum = retrieve_data(file)
+        if data_full.iloc[:,7].sum() == checksum:
+            database = mergedb(data_full, database)
+            timestamp_txt = today.strftime('%-d/%-m/%y')
+            newcases = "{:,}".format(int(database[timestamp_txt].sum(axis=0)))
+            accumulated = "{:,}".format(int(database['Total'].sum(axis=0)))
+            bkk_newcases = "{:,}".format(int(database[database['Province'] == 'กรุงเทพมหานคร'][timestamp_txt]))
+            bkk_accumulated = "{:,}".format(int(database[database['Province'] == 'กรุงเทพมหานคร']['Total']))
+            top5_db = top5create(database, timestamp_txt)
+            plt_table(top5_db)
+            error_flag = 0
+            break
+        else:
+            error_flag = 1
     time.sleep(600)
 
 line_token = # put your line_notify_token here
 
-response = func_LineNotify('\nรายงานโควิด (Wave 3) ประจำวันที่ '+timestamp_txt+'\nจำนวนผู้ติดเชื้อรายใหม่ '+newcases+' คน'+'\nผู้ติดเชื้อสะสม '+accumulated+' คน'+'\n(กรุงเทพฯ จำนวนผู้ติดเชื้อรายใหม่ '+bkk_newcases+' คน'+'\nผู้ติดเชื้อสะสม '+bkk_accumulated+' คน)', 'tmp.png', line_token)
+if error_flag == 0:
+    response = func_LineNotify('\nรายงานโควิด (Wave 3) ประจำวันที่ '+timestamp_txt+'\nจำนวนผู้ติดเชื้อรายใหม่ '+newcases+' คน'+'\nผู้ติดเชื้อสะสม '+accumulated+' คน'+'\n(กรุงเทพฯ จำนวนผู้ติดเชื้อรายใหม่ '+bkk_newcases+' คน'+'\nผู้ติดเชื้อสะสม '+bkk_accumulated+' คน)', 'tmp.png', line_token)
+elif error_flag == 1:
+    response = func_LineNotify('Error Checksum', Toekn = line_token)
+    
