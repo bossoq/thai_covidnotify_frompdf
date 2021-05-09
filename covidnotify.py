@@ -138,7 +138,7 @@ while True:
 line_token = # put your line_notify_token here
 
 if error_flag == 0:
-    response = func_LineNotify('\nรายงานโควิด (Wave 3) ประจำวันที่ '+timestamp_txt+'\nจำนวนผู้ติดเชื้อรายใหม่ '+newcases+' คน'+'\nผู้ติดเชื้อสะสม '+accumulated+' คน'+'\n(กรุงเทพฯ จำนวนผู้ติดเชื้อรายใหม่ '+bkk_newcases+' คน'+'\nผู้ติดเชื้อสะสม '+bkk_accumulated+' คน)', 'tmp.png', line_token)
+    response = func_LineNotify('\nรายงานโควิด (Wave 3) ประจำวันที่ '+timestamp_txt+'\nจำนวนผู้ติดเชื้อรายใหม่ '+newcases+' คน'+'\nผู้ติดเชื้อสะสม '+accumulated+' คน'+'\n(กรุงเทพฯ จำนวนผู้ติดเชื้อรายใหม่ '+bkk_newcases+' คน'+'\nผู้ติดเชื้อสะสม '+bkk_accumulated+' คน)', line_token, 'tmp.png')
 elif error_flag == 1:
     response = func_LineNotify('Error Checksum', line_token)
     
