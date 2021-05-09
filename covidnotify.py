@@ -105,7 +105,7 @@ def plt_table(top5_db):
             cell.set_text_props(fontproperties=fm.FontProperties(weight='bold'))
     plt.savefig(cwd+'/tmp.png')
 
-def func_LineNotify(Message, image_file='no.file', Token):
+def func_LineNotify(Message, Token, image_file='no.file'):
     url = 'https://notify-api.line.me/api/notify'
     data = ({'message': Message})
     LINE_HEADERS = {'Authorization': 'Bearer ' + Token}
@@ -140,5 +140,5 @@ line_token = # put your line_notify_token here
 if error_flag == 0:
     response = func_LineNotify('\nรายงานโควิด (Wave 3) ประจำวันที่ '+timestamp_txt+'\nจำนวนผู้ติดเชื้อรายใหม่ '+newcases+' คน'+'\nผู้ติดเชื้อสะสม '+accumulated+' คน'+'\n(กรุงเทพฯ จำนวนผู้ติดเชื้อรายใหม่ '+bkk_newcases+' คน'+'\nผู้ติดเชื้อสะสม '+bkk_accumulated+' คน)', 'tmp.png', line_token)
 elif error_flag == 1:
-    response = func_LineNotify('Error Checksum', Toekn = line_token)
+    response = func_LineNotify('Error Checksum', line_token)
     
