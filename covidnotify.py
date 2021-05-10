@@ -133,6 +133,7 @@ while True:
             break
         else:
             error_flag = 1
+            break
     time.sleep(600)
 
 line_token = # put your line_notify_token here
