@@ -40,7 +40,7 @@ def check_pdf_page(file):
 
 def retrieve_data(file):
     oldcol = [45,170,270,326,379,434,488,542,594,650]
-    newcol = [45,160,240,298,356,414,471,530,594,658]
+    newcol = [36,160,240,298,356,414,471,530,594,658]
     read_page, read_page1 = check_pdf_page(file)
     table1 = tabula.read_pdf(cwd+'/tmp.pdf', pages=read_page, guess=False, columns=newcol, area=[37,0,392,720])
     table2 = tabula.read_pdf(cwd+'/tmp.pdf', pages=read_page1, guess=False, columns=oldcol, area=[37,0,392,720])
